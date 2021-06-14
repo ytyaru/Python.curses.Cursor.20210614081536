@@ -18,14 +18,19 @@ class Curses:
 
         Curses.__make_window()
         Curses.__make_window()
-        cls.Windows[1].draw(y=1, msg='AAAAAAAAAAAAAAAAAAAAAAAAAAa')
+        cls.Windows[0].Pointer.clear()
+#        cls.Windows[1].Pointer.clear()
+        cls.Windows[0].draw(y=0, msg='Window-1', attr=curses.A_REVERSE | curses.color_pair(1))
+        cls.Windows[1].draw(y=1, msg='Window-2', attr=curses.A_REVERSE | curses.color_pair(2))
+#        cls.Windows[1].switch()
 #        cls.Windows[0].hide()
 #        cls.Windows[1].hide()
+#        cls.Windows[1].show()
 #        cls.Windows[0].Panel.hide()
 #        cls.Windows[1].Panel.hide()
-#        curses.panel.update_panels()
+        curses.panel.update_panels()
 
-        Curses.__draw()
+#        Curses.__draw()
         Curses.__input()
     @classmethod
     def __make_window(cls, x=0, y=0, w=-1, h=-1):
@@ -121,15 +126,18 @@ class Window:
         sub = self.__window.subwin(h, w, y, x)
         self.__subs.append(sub)
         return sub
-    def draw(self, x=0, y=0, msg='Hello curses Window !!'):
-        self.Pointer.addstr(y, x, msg)
+    def draw(self, x=0, y=0, msg='Hello curses Window !!', attr=None):
+#        self.Pointer.erase()
+#        self.Pointer.clear()
+        if attr is None: self.Pointer.addstr(y, x, msg)
+        else: self.Pointer.addstr(y, x, msg, attr)
         self.Pointer.refresh()
-        curses.panel.update_panels()
+#        curses.panel.update_panels()
     def show(self): self.__panel.show(); curses.panel.update_panels();
     def hide(self): self.__panel.hide(); curses.panel.update_panels();
     def switch(self):
-        if self.__panel.hidden(): self.__panel.hide()
-        else: self.__panel.show()
+        if self.__panel.hidden(): self.__panel.show()
+        else: self.__panel.hide()
         curses.panel.update_panels()
 
 class Pad: pass
