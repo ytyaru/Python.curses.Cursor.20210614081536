@@ -3,7 +3,7 @@
 import os, curses, curses.panel
 # cursesライブラリを使いやすくラップする。
 # resize: https://stackoverflow.com/questions/5161552/python-curses-handling-window-terminal-resize
-# 端末のリサイズは超面倒そう。なので対応しないことにする。かわりにウインドウのリサイズだけ対応する。
+# 端末のリサイズは超面倒そう。なので対応しないことにする。かわりにウインドウのリサイズだけ対応する。再描画がおかしい。
 class Curses:
     WndMgr = None
     @classmethod
@@ -158,6 +158,10 @@ class SubWindow:
     def W(self): return self.__window.getmaxyx()[1]
     @property
     def H(self): return self.__window.getmaxyx()[0]
+    @W.setter
+    def W(self, v): self.__window.resize(self.H, v)
+    @H.setter
+    def H(self, v): self.__window.resize(v, self.W)
 
 class Pad: pass
 class Canvas: pass
@@ -172,14 +176,15 @@ if __name__ == "__main__":
         wndMgr.Windows[1].W = 40
         wndMgr.Windows[1].H = 20
     def draw(wndMgr):
+#        wndMgr.Screen.clear()
         wndMgr.Windows[0].Pointer.clear()
         wndMgr.Windows[1].Pointer.clear()
         wndMgr.Windows[0].Pointer.bkgd(' ', curses.A_REVERSE | curses.color_pair(1))
         wndMgr.Windows[1].Pointer.bkgd(' ', curses.A_REVERSE | curses.color_pair(2))
         wndMgr.Windows[0].Pointer.addstr(0,0,'Window-1', curses.A_REVERSE | curses.color_pair(1))
-        wndMgr.Windows[0].Pointer.addstr(1, 0, '↑↓←→:move h:hide/show PgUp/PgDn:Z-switch other:quit', curses.color_pair(15))
+        wndMgr.Windows[0].Pointer.addstr(1, 0, '↑↓←→:move h:hide/show PgUp/PgDn:Z-switch asdw:resize other:quit', curses.color_pair(15))
         wndMgr.Windows[1].Pointer.addstr(0,0,'Window-2', curses.A_REVERSE | curses.color_pair(2))
-        wndMgr.Windows[1].Pointer.addstr(1, 0, '↑↓←→:move h:hide/show PgUp/PgDn:Z-switch other:quit', curses.color_pair(15))
+        wndMgr.Windows[1].Pointer.addstr(1, 0, '↑↓←→:move h:hide/show PgUp/PgDn:Z-switch asdw:resize other:quit', curses.color_pair(15))
     def loop(wndMgr, key):
         if curses.KEY_UP == key: wndMgr.Windows[1].Y -= 1 if 0 < wndMgr.Windows[1].Y else 0
         elif curses.KEY_DOWN == key: wndMgr.Windows[1].Y += 1 if wndMgr.Windows[1].Y < curses.LINES-wndMgr.Windows[1].H else 0
@@ -190,7 +195,12 @@ if __name__ == "__main__":
             if curses.panel.top_panel() == wndMgr.Windows[1].Panel: wndMgr.Windows[0].Panel.top()
             else: wndMgr.Windows[1].Panel.top()
             curses.panel.update_panels()
+        elif ord('w') == key: wndMgr.Windows[1].H -= 1 if 1 < wndMgr.Windows[1].H else 0
+        elif ord('s') == key: wndMgr.Windows[1].H += 1 if wndMgr.Windows[1].H+wndMgr.Windows[1].Y < curses.LINES else 0
+        elif ord('a') == key: wndMgr.Windows[1].W -= 1 if 1 < wndMgr.Windows[1].W else 0
+        elif ord('d') == key: wndMgr.Windows[1].W += 1 if wndMgr.Windows[1].W+wndMgr.Windows[1].X < curses.COLS else 0
         else: return False
+        draw(wndMgr)
         return True
         
     Curses.run(init=init, draw=draw, loop=loop)
