@@ -283,6 +283,12 @@ if __name__ == "__main__":
             wndMgr.Pads[0].ShowX, 
             f'Pad-1-Sub-1', 
             curses.A_REVERSE | curses.color_pair(5))
+        wndMgr.Pads[0].Subs[0].addstr(
+            wndMgr.Pads[0].ShowY + 2, 
+            wndMgr.Pads[0].ShowX + 4, 
+            f'{wndMgr.Pads[0].ShowX},{wndMgr.Pads[0].ShowY} ({wndMgr.Pads[0].X},{wndMgr.Pads[0].Y}) {wndMgr.Pads[0].W},{wndMgr.Pads[0].H}', 
+            curses.A_REVERSE | curses.color_pair(5))
+
         wndMgr.Pads[0].refresh()
     def loop(wndMgr, key):
         if curses.KEY_UP == key: wndMgr.Pads[0].ShowY -= 1 if 0 < wndMgr.Pads[0].ShowY else 0
