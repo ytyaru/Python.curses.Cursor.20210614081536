@@ -22,7 +22,6 @@ class Curses:
         else: cls.__draw(kwargs['draw'])
         if kwargs['loop'] is None: cls.WndMgr.Screen.getkey()
         else: cls.__loop(kwargs['loop'], ms=kwargs['ms'])
-#        else: kwargs['loop'](cls.WndMgr)
     @classmethod
     def __init_cursor(cls): curses.curs_set(0)
     @classmethod
@@ -44,10 +43,7 @@ class Curses:
     def __loop(cls, loop, ms=5):
         is_loop = True
         while is_loop:
-#        key = wndMgr.Screen.getch()
-#        while loop(cls.WndMgr, ch):
             key = cls.WndMgr.Screen.getch()
-#            loop(cls.WndMgr)
             is_loop = loop(cls.WndMgr, key)
             cls.WndMgr.Screen.refresh()
             curses.napms(ms)
