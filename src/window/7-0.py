@@ -3,31 +3,14 @@
 import os, curses, curses.panel
 from signal import signal, SIGWINCH
 # cursesライブラリを使いやすくラップする。
-# resize: https://stackoverflow.com/questions/5161552/python-curses-handling-window-terminal-resize
-# 端末のリサイズは超面倒そう。なので対応しないことにする。
 class Curses:
     WndMgr = None
     @classmethod
     def run(cls, init=None, draw=None, loop=None, ms=5):
-#        signal(SIGWINCH, resize_handler)
         curses.wrapper(Curses.__main, init=init, draw=draw, loop=loop, ms=ms)
-    @classmethod
-    def __resize_handler(cls, signum, frame):
-#        endwin()  # This could lead to crashes according to below comment
-#        stdscr.refresh()
-#        redraw_stdscreen()
-        cls.WndMgr.Screen.refresh()
-
-        rows, cols = cls.WndMgr.Screen.getmaxyx()
-        cls.WndMgr.Screen.clear()
-        cls.WndMgr.Screen.border()
-        cls.WndMgr.Screen.hline(2, 1, '_', cols-2)
-        cls.WndMgr.Screen.refresh()
-    
     @classmethod
     def __main(cls, screen, *args, **kwargs):
         cls.WndMgr = WindowManager(screen)
-        signal(SIGWINCH, Curses.__resize_handler)
         Curses.__init_cursor()
         Curses.__init_color_pair()
         if kwargs['init'] is None: pass
@@ -58,7 +41,7 @@ class Curses:
         is_loop = True
         while is_loop:
             key = cls.WndMgr.Screen.getch()
-#            if curses.KEY_RESIZE == key: cls.WndMgr.resize()
+            if curses.KEY_RESIZE == key: cls.WndMgr.resize()
             is_loop = loop(cls.WndMgr, key)
             cls.WndMgr.Screen.refresh()
             curses.napms(ms)
