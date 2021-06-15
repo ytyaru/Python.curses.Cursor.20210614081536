@@ -126,8 +126,6 @@ class SubWindow:
     def __init__(self, parent, x=0, y=0, w=-1, h=-1, is_derwin=True):
         self.__parent = parent
         self.__window = self.__make(x=x, y=y, w=w, h=h, is_derwin=is_derwin)
-#        self.__window = self.__make(x, y, w, h, is_derwin)
-#        self.__subs = []
     def __make(self, x=0, y=0, w=-1, h=-1, is_derwin=True):
         ph, pw = self.__parent.getmaxyx()
         h = h if 0 < h and h <= ph else ph
