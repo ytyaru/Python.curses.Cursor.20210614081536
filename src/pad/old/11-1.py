@@ -250,7 +250,11 @@ if __name__ == "__main__":
         wndMgr.Windows[1].W = 40
         wndMgr.Windows[1].H = 20
         wndMgr.Windows[1].make_sub(x=2, y=4, w=20, h=4)
+#        wndMgr.make_pad(x=6,y=6,w=curses.COLS*3,h=curses.LINES*3)
+        wndMgr.make_pad(w=curses.COLS*3,h=curses.LINES*3)
+        wndMgr.Pads[0].make_sub(x=1, y=1, w=20, h=4)
     def draw(wndMgr):
+#        wndMgr.Screen.clear()
         wndMgr.Windows[0].Pointer.clear()
         wndMgr.Windows[1].Pointer.clear()
         wndMgr.Windows[1].Subs[0].Pointer.clear()
@@ -263,6 +267,14 @@ if __name__ == "__main__":
         wndMgr.Windows[1].Pointer.addstr(0,0,'Window-2', curses.A_REVERSE | curses.color_pair(2))
         wndMgr.Windows[1].Pointer.addstr(1, 0, '↑↓←→:move h:hide/show PgUp/PgDn:Z-switch asdw:resize other:quit', curses.color_pair(15))
         wndMgr.Windows[1].Subs[0].Pointer.addstr(0,0,'Window-2-Sub-1', curses.A_REVERSE | curses.color_pair(3))
+
+        wndMgr.Pads[0].Pointer.bkgd(' ', curses.A_REVERSE | curses.color_pair(4))
+        wndMgr.Pads[0].Pointer.addstr(0,0,'Pad-1', curses.A_REVERSE | curses.color_pair(4))
+        wndMgr.Pads[0].Subs[0].bkgd(' ', curses.A_REVERSE | curses.color_pair(5))
+        wndMgr.Pads[0].Subs[0].addstr(0,0,'Pad-1-Sub-1', curses.A_REVERSE | curses.color_pair(5))
+#        wndMgr.Pads[0].Pointer.clear()
+#        wndMgr.Pads[0].refresh()
+#        wndMgr.Pads[0].Subs[0].refresh(0,0,0,0,curses.LINES,curses.COLS)
     def loop(wndMgr, key):
         if curses.KEY_UP == key: wndMgr.Windows[1].Y -= 1 if 0 < wndMgr.Windows[1].Y else 0
         elif curses.KEY_DOWN == key: wndMgr.Windows[1].Y += 1 if wndMgr.Windows[1].Y < curses.LINES-wndMgr.Windows[1].H else 0

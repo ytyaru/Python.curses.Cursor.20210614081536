@@ -4,10 +4,8 @@ import os, curses, curses.panel
 # cursesライブラリを使いやすくラップする。
 class Curses:
     WndMgr = None
-    draw = None
     @classmethod
     def run(cls, init=None, draw=None, loop=None, ms=5):
-        cls.draw = draw
         curses.wrapper(Curses.__main, init=init, draw=draw, loop=loop, ms=ms)
     @classmethod
     def __main(cls, screen, *args, **kwargs):
@@ -31,6 +29,7 @@ class Curses:
     @classmethod
     def __draw(cls, draw):
         for w in cls.WndMgr.Windows: w.Pointer.noutrefresh()
+#        for p in cls.WndMgr.Pads: p.Pointer.noutrefresh()
         for p in cls.WndMgr.Pads: p.noutrefresh()
         draw(cls.WndMgr)
         curses.panel.update_panels()
@@ -38,11 +37,10 @@ class Curses:
     @classmethod
     def __loop(cls, loop, ms=5):
         is_loop = True
-        if cls.draw: cls.__draw(cls.draw)
         while is_loop:
             key = cls.WndMgr.Screen.getch()
             is_loop = loop(cls.WndMgr, key)
-            if cls.draw: cls.__draw(cls.draw)
+            cls.WndMgr.Screen.refresh()
             curses.napms(ms)
 
 class WindowManager:
@@ -51,12 +49,15 @@ class WindowManager:
         self.__windows = []
         self.__pads = []
     def make(self, x=0, y=0, w=-1, h=-1):
+#        return self.__make_pad(x,y,w,h) if curses.LINES < h or curses.COLS < w else self.__make_window(x,y,w,h)
         return self.make_pad(w,h) if curses.LINES < h or curses.COLS < w else self.make_window(x,y,w,h)
     def make_window(self, x=0, y=0, w=-1, h=-1):
         self.__windows.append(Window(self.Screen, x, y, w, h))
         return self.__windows[-1]
     def make_pad(self, w=-1, h=-1):
+#    def make_pad(self, x=0, y=0, w=-1, h=-1):
         self.__pads.append(Pad(self.Screen, w, h))
+#        self.__pads.append(Pad(self.Screen, x, y, w, h))
         return self.__pads[-1]
     @property
     def Screen(self): return self.__screen
@@ -159,25 +160,33 @@ class SubWindow:
     @H.setter
     def H(self, v): self.__window.resize(v, self.W)
 
+# padはpanelを使えない
 class Pad:
     def __init__(self, screen, w=-1, h=-1):
+#    def __init__(self, screen, x=0, y=0, w=-1, h=-1):
         self.__screen = screen
         self.__make_win(w, h)
+#        self.__make_win(x, y, w, h)
         self.__subs = []
         self.__cursor = Cursor(self.__window)
         self.__showX = 0
         self.__showY = 0
+    @property
+    def Panel(self): return self.__panel
     @property
     def Pointer(self): return self.__window
     @property
     def Subs(self): return self.__subs
     @property
     def Cursor(self): return self.__cursor
-
     @property
     def X(self): return self.__window.getbegyx()[1]
     @property
     def Y(self): return self.__window.getbegyx()[0]
+#    @X.setter
+#    def X(self, v): self.__panel.move(self.Y, v); curses.panel.update_panels();
+#    @Y.setter
+#    def Y(self, v): self.__panel.move(v, self.X); curses.panel.update_panels();
     @X.setter
     def X(self, v): self.__window.mvwin(self.Y, v)
     @Y.setter
@@ -201,28 +210,43 @@ class Pad:
     @H.setter
     def H(self, v): self.__window.resize(v, self.W); curses.panel.update_panels();
     def __make_win(self, w=-1, h=-1):
+#    def __make_win(self, x=0, y=0, w=-1, h=-1):
+#        h = h if 0 < h and h <= curses.LINES else curses.LINES
+#        w = w if 0 < w and w <= curses.COLS else curses.COLS
         h = h if 0 < h else curses.LINES
         w = w if 0 < w else curses.COLS
+#        y = y if 0 <= y else 0
+#        y = y if y <= curses.LINES - h else curses.LINES - h
+#        x = x if 0 <= x else 0
+#        x = x if x <= curses.COLS - w else curses.COLS - w
         self.__window = curses.newpad(h, w)
+#        self.__window = curses.newpad(h, w, y, x)
     def make_sub(self, x=0, y=0, w=-1, h=-1, is_derwin=True):
         self.__subs.append(self.__window.subpad(h, w, y, x))
+#        self.__subs.append(SubPad(self.Pointer,x=x,y=y,w=w,h=h,is_derwin=is_derwin))
         return self.__subs[-1]
     def noutrefresh(self):
-        self.__window.noutrefresh(self.__showY, self.__showX, 0, 0, curses.LINES-1, curses.COLS-1)
+#        self.__window.noutrefresh(0, 0, 0, 0, 1, 1)
+#        self.__window.noutrefresh(0, 0, 0, 0, curses.LINES, curses.COLS)
+#        self.__window.noutrefresh(0, 0, 0, 0, self.H-1, self.W-1)
+#        self.__window.noutrefresh(self.__showY, self.__showX, 0, 0, self.H-1, self.W-1)
+#        self.__window.noutrefresh(self.__showY, self.__showX, 0, 0, self.H, self.W)
+#        self.__window.noutrefresh(self.__showY, self.__showX, self.Y, self.X, self.H, self.W)
+        self.__window.noutrefresh(self.__showY, self.__showX, self.Y, self.X, 5, 5)
     def refresh(self):
-        self.__window.refresh(self.__showY, self.__showX, 0, 0, curses.LINES-1, curses.COLS-1)
-
-class Canvas:
-    WndMgr = None
-    @classmethod
-    def draw(cls, draw):
-        for w in cls.WndMgr.Windows: w.Pointer.noutrefresh()
-        for p in cls.WndMgr.Pads: p.noutrefresh()
-        draw(cls.WndMgr)
+        self.__window.refresh(self.__showY, self.__showX, 0, 0, self.H, self.W)
+#        self.__window.refresh(self.__showY, self.__showX, self.Y, self.X, self.H, self.W)
+    """
+    def show(self): self.__panel.show(); curses.panel.update_panels();
+    def hide(self): self.__panel.hide(); curses.panel.update_panels();
+    def switch(self):
+        if self.__panel.hidden(): self.__panel.show()
+        else: self.__panel.hide()
         curses.panel.update_panels()
-        curses.doupdate()
-    def __init__(self, window):
-        self.__window = window
+    """
+
+class Canvas: pass
+
 
 class Cursor:
     @classmethod
@@ -250,7 +274,11 @@ if __name__ == "__main__":
         wndMgr.Windows[1].W = 40
         wndMgr.Windows[1].H = 20
         wndMgr.Windows[1].make_sub(x=2, y=4, w=20, h=4)
+#        wndMgr.make_pad(x=6,y=6,w=curses.COLS*3,h=curses.LINES*3)
+        wndMgr.make_pad(w=curses.COLS*3,h=curses.LINES*3)
+        wndMgr.Pads[0].make_sub(w=20, h=4)
     def draw(wndMgr):
+#        wndMgr.Screen.clear()
         wndMgr.Windows[0].Pointer.clear()
         wndMgr.Windows[1].Pointer.clear()
         wndMgr.Windows[1].Subs[0].Pointer.clear()
@@ -262,7 +290,12 @@ if __name__ == "__main__":
         wndMgr.Windows[0].Pointer.addstr(1, 0, '↑↓←→:move h:hide/show PgUp/PgDn:Z-switch asdw:resize other:quit', curses.color_pair(15))
         wndMgr.Windows[1].Pointer.addstr(0,0,'Window-2', curses.A_REVERSE | curses.color_pair(2))
         wndMgr.Windows[1].Pointer.addstr(1, 0, '↑↓←→:move h:hide/show PgUp/PgDn:Z-switch asdw:resize other:quit', curses.color_pair(15))
+
         wndMgr.Windows[1].Subs[0].Pointer.addstr(0,0,'Window-2-Sub-1', curses.A_REVERSE | curses.color_pair(3))
+
+
+        wndMgr.Pads[0].Pointer.addstr(0,0,'Pad-1', curses.A_REVERSE | curses.color_pair(4))
+        wndMgr.Pads[0].Subs[0].addstr(0,0,'Pad-1-Sub-1', curses.A_REVERSE | curses.color_pair(5))
     def loop(wndMgr, key):
         if curses.KEY_UP == key: wndMgr.Windows[1].Y -= 1 if 0 < wndMgr.Windows[1].Y else 0
         elif curses.KEY_DOWN == key: wndMgr.Windows[1].Y += 1 if wndMgr.Windows[1].Y < curses.LINES-wndMgr.Windows[1].H else 0
@@ -278,6 +311,7 @@ if __name__ == "__main__":
         elif ord('a') == key: wndMgr.Windows[1].W -= 1 if 1 < wndMgr.Windows[1].W else 0
         elif ord('d') == key: wndMgr.Windows[1].W += 1 if wndMgr.Windows[1].W+wndMgr.Windows[1].X < curses.COLS else 0
         else: return False
+        draw(wndMgr)
         return True
         
     Curses.run(init=init, draw=draw, loop=loop)
