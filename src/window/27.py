@@ -17,7 +17,6 @@ class Curses:
         Cursor.hide()
         Curses.__init_color_pair()
         if cls.init is not None: cls.init()
-#        else: Window()
         cls.__draw()
         cls.__loop()
     @classmethod
@@ -298,6 +297,6 @@ if __name__ == "__main__":
         KeyInput()
 
     Terminal.Name = 'xterm-256color'
-#    Curses.run(init=init, wait_time=5)
-    Curses.run()
+    Curses.run(init=init, wait_time=5)
+#    Curses.run()
 
