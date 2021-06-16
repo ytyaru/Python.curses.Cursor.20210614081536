@@ -299,8 +299,10 @@ class Pad:
     def Y(self): return self.__window.getbegyx()[0]
     @X.setter
     def X(self, v): self.__window.mvwin(self.Y, v)
+#    def X(self, v): self.__window.mvderwin(self.Y, v)
     @Y.setter
     def Y(self, v): self.__window.mvwin(v, self.X)
+#    def Y(self, v): self.__window.mvderwin(v, self.X)
 
     @property
     def ShowX(self): return self.__showX

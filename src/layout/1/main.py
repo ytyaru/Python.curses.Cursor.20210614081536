@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf8
 if __name__ == "__main__":
-    import curses, Curses
+    import curses, Curses, Layout
     class Pad1(Curses.Pad):
         def init(self):
             self.Pointer.clear()
@@ -50,6 +50,15 @@ if __name__ == "__main__":
         subpad = SubPad1(pad, x=2, y=2, w=int(pad_w/2), h=int(curses.LINES*3/3))
         win = Window1(x=pad_w+1, y=0, w=curses.COLS-(pad_w+1), h=curses.LINES)
         subwin = SubWindow1(win, x=2, y=2, w=20, h=5)
+
+        win.X = 2
+        pad.X = 2
+
+#        Layout.flow_layout_h(targets=[pad, win], wr=[30, 70], hr=[100,100])
+
+#        flow_layout_h(targets=[pad, win], rates=[30, 70])
+#        flow_layout_h(targets=[pad, win], value=[pad_w, -2])
+#        flow_layout_v()
         KeyInput()
 
     Curses.Terminal.Name = 'xterm-256color'
