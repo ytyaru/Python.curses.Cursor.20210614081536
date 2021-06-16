@@ -267,3 +267,11 @@ _curses.error: mvderwin() returned ERR
 
 　既存ライブラリのクソっぷりを修正するとか苦痛すぎる。もしライブラリが変更されたら使えなくなるだろう。なので差分吸収パターンはなし。Window継承して自前Padをつくるのがマシ。ただ、それが苦痛すぎる。元々WindowとかPadのような便利クラスがあるからなんとかcursesでTUIを使おうという気になれた。なのに、それが使えないとなると、実装量がハンパない。すでに使いやすくするためのラッパクラスを書いている時点でクソすぎる。これ以上クソなら、もう使う価値なし。という結論になる。
 
+　[Urwid][]というTUIライブラリがあるらしい。だが、TUIにこだわる理由がない。新しく学習せねばならなそう。なのに自由度も低い。だったらもうGUIを学習したほうがよいのでは？
+
+[Urwid]:http://urwid.org/tutorial/
+
+　[PySimpleGUI][]というGUIライブラリを学習したい。もうこれでいいじゃん。こっちのほうがいいじゃん。
+
+[PySimpleGUI]:https://pysimplegui.readthedocs.io/en/latest/readme%20Japanese%20Version/
+
