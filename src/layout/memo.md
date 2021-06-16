@@ -160,3 +160,10 @@ _curses.error: mvderwin() returned ERR
 
 　`mvwin()`と`mvderwin()`の両方で試してみたが、どちらもダメだった。もしや、これらの関数はPadでは使えない？　Windowでしか使えない関数だったの？
 
+　Padは`refresh()`,`noutrefresh()`に6つの引数を渡す。それ以外はWindowと同じように使える。そう[Pythonのドキュメント](https://docs.python.org/ja/3/howto/curses.html#windows-and-pads)に書いてあったんですけど？
+
+　APIドキュメントをよく見てみる。[newwin][]はX,Y座標を引数として受け取れる。でも、[newpad][]は受け取れない。もしや、この差異がなにか関係しているのか？　Padの実装がどうなっているか知らないけど、かならず`(0,0)`座標になる制約があるとか？　だからPadの座標を変更しようとするとエラーになったのでは？
+
+[newpad]:https://docs.python.org/ja/3/library/curses.html#curses.newpad
+[newwin]:https://docs.python.org/ja/3/library/curses.html#curses.newwin
+
