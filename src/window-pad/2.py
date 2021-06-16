@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf8
 import os, curses, curses.panel
-# cursesライブラリを使いやすくラップする。window/27.pyからPadで使えるよう改修した。
+# cursesライブラリを使いやすくラップする。pad/7.py。
 class Curses:
     screen = None
     init = None
