@@ -145,3 +145,18 @@ block_laoyout_right(w=curses.COLS, h=curses.LINES, wr=[50%,50%], hr=[50%,50%], t
 +--------+ +--------+ +--------+
 ```
 
+# エラー
+
+　Padの座標を変更できない。
+
+```
+    def X(self, v): self.__window.mvwin(self.Y, v)
+_curses.error: mvwin() returned ERR
+```
+```
+    def X(self, v): self.__window.mvderwin(self.Y, v)
+_curses.error: mvderwin() returned ERR
+```
+
+　`mvwin()`と`mvderwin()`の両方で試してみたが、どちらもダメだった。もしや、これらの関数はPadでは使えない？　Windowでしか使えない関数だったの？
+
