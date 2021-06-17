@@ -135,7 +135,30 @@ pad    = Area(w=端末W以下, h=端末H以下)
 
 * [how-to-extend-the-curses-window-class-in-python3](https://stackoverflow.com/questions/45050864/how-to-extend-the-curses-window-class-in-python3)
 
-### 対策：[subpad][]で[mvwin][]する
+　対策パターンは以下。どれも問題がある。
+
+* window/padを使い分ける（違いを常に意識せねばならず面倒で難解）
+* 常にpadを使う（padの制約を受ける。すなわち座標移動ができずPanelが使えない）
+* 常にwindowを使う（windowの制約を受ける。すなわちスクロールできない。端末サイズを越えた位置や範囲に描画できない。エラーになる）
+* windowを継承した自作Padクラスを作る（スクロールの実装ができない。`window.addstr()`で端末サイズを越えた位置や範囲に描画するとエラーになる。これを回避できない。その術がない。または不明）
+
+　とくに最後のwindow継承による自作Padクラスはスクロールのしくみが作れなかった。スクロールのしくみが実装できなかった。
+
+　次の方法を試したがダメだった。スクロールができるPadはすでにあるので、それを流用しようと考えた。まずはPadをつくり、その部分範囲だけを抜き出して、Windowへ変換しようと考えた。すなわち以下の手順である。
+
+1. `pad.putwin(file)`でShowX,ShowYを始点にして端末サイズに切り抜いた範囲だけを出力する
+2. それを`window = curses.getwin(file)`してwindowへ変換する
+
+　結果、できなかった。WindowはWindowにしかならないし、PadはPadにしかならない。PadをWindowに変換するようなことはできなかった。
+
+　また、出力形式も期待と異なった。[putwin][]で出力された内容はcurses固有のデータ形式だった。[ANSI Escape Code][]を期待したのだが、別物だった。もしそれだったら[newwin][]してそれを出力すればいいだけだと思ったのだが。できないようだ。
+
+[putwin]:https://docs.python.org/ja/3/library/curses.html#curses.window.putwin
+[getwin]:https://docs.python.org/ja/3/library/curses.html#curses.getwin
+[ANSI Escape Code]:https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
+
+* [how-to-write-the-curses-window-content-to-the-file-in-python](https://stackoverflow.com/questions/43580876/how-to-write-the-curses-window-content-to-the-file-in-python)
+* [python-testing-ncurses](https://stackoverflow.com/questions/30811680/python-testing-ncurses)
 
 [newpad]:https://docs.python.org/ja/3/library/curses.html#curses.newpad
 [newwin]:https://docs.python.org/ja/3/library/curses.html#curses.newwin
