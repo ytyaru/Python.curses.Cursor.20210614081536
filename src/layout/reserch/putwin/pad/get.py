@@ -4,7 +4,9 @@ import curses
 def init(scr):
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_GREEN)
     with open('putwin.txt', 'br') as f:
-        window = curses.getwin(f)
-    window.getkey()
+        pad = curses.getwin(f)
+        pad.refresh(0,0,0,0,curses.LINES-1,curses.COLS-1)
+    pad.keypad(True)
+    pad.getkey()
 curses.wrapper(init)
 
