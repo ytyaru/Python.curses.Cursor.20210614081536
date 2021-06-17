@@ -160,6 +160,10 @@ pad    = Area(w=端末W以下, h=端末H以下)
 * [how-to-write-the-curses-window-content-to-the-file-in-python](https://stackoverflow.com/questions/43580876/how-to-write-the-curses-window-content-to-the-file-in-python)
 * [python-testing-ncurses](https://stackoverflow.com/questions/30811680/python-testing-ncurses)
 
+　ただ、単純なケースならつくれるかもしれない。windowを継承した自作Padクラスを作るとき、たとえば指定したテキスト配列を`pad.addstr(i, 0, str)`するだけなら簡単に作れそう。
+
+　内容を途中で変更するときはリストを作り変えればよい。それ以外の細かい制御はまったくできない。
+
 [newpad]:https://docs.python.org/ja/3/library/curses.html#curses.newpad
 [newwin]:https://docs.python.org/ja/3/library/curses.html#curses.newwin
 [mvwin]:https://docs.python.org/ja/3/library/curses.html#curses.window.mvwin

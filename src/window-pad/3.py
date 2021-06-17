@@ -352,11 +352,13 @@ class WinPad:
     @ShowY.setter
     def ShowY(self, v): self.__showY = v
     def addstr(self, y, x, s, attr=0):
-        self.__pad.addstr(y, x, s, attr)
         # どう実装すればいい？　padとwindowの両方をもたせる？　padの仮想領域に描画して、それをShowX,ShowYを始点にして端末サイズで切り取り、その範囲のデータをputwin()で取得する。さらにそのデータを元にgetwin()してWindowオブジェクトを得る。
         # https://stackoverflow.com/questions/43580876/how-to-write-the-curses-window-content-to-the-file-in-python
         # https://stackoverflow.com/questions/30811680/python-testing-ncurses
-        self.__pad.putwin()
+        # できない。
+        # WindowはWindow, PadはPadにしかできない。PadをWindowに変換することはできない。
+#        self.__pad.addstr(y, x, s, attr)
+#        self.__pad.putwin()
         self.__window.addstr(y+self.ShowY, x+self.ShowX, s, attr)
     def noutrefresh(self): self.__window.noutrefresh()
     def refresh(self): self.__window.refresh()
