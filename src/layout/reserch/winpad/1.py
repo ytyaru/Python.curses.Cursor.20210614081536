@@ -350,6 +350,7 @@ class ListWindow:
     @property
     def Attr(self): return self.__attr
     def addstrs(self):
+        self.__window.erase()
         for i, item in enumerate(self.Items):
 #            self.__window.addstr(self.Y+i, self.X, self.Items[i + self.ShowY], self.Attr)
             self.__window.addstr(self.Y+i, self.X, f'{self.Items[i + self.ShowY]} {self.ShowY},{self.ShowX}', self.Attr)
@@ -396,7 +397,8 @@ class ListWindow:
     @ShowY.setter
     def ShowY(self, y):
         if   y < 0: self.__showY = 0
-        elif len(self.Items) -1 < y: self.__showY = len(self.Items) - self.H
+        elif len(self.Items) -self.H - 1 < y: self.__showY = len(self.Items) - self.H
+#        elif len(self.Items) -1 < y: self.__showY = len(self.Items) - self.H
         else: self.__showY = y
 #        if   y < 0: self.__showY = 0
 #        elif self.H < x: self.__showY = self.H - 1
