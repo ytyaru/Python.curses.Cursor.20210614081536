@@ -395,8 +395,10 @@ class ListWindow:
     def ShowY(self): return self.__showY
     @ShowX.setter
     def ShowX(self, x):
+        l = max(len(i) for i in self.Items)
         if   x < 0: self.__showX = 0
-        elif self.W < x: self.__showX = self.W - 1
+#        elif self.W < x: self.__showX = self.W - 1
+        elif l < x: self.__showX = l
         else: self.__showX = x
     @ShowY.setter
     def ShowY(self, y):
