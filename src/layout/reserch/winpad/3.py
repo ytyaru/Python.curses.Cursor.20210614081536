@@ -352,7 +352,9 @@ class ListWindow:
         self.__window.erase()
         self.__window.bkgd(' ', curses.A_REVERSE | curses.color_pair(1))
         for i, item in enumerate(self.Items):
-            self.__window.addstr(i, 0, f'{self.Items[i + self.ShowY]} {self.ShowY},{self.ShowX} {self.Y},{self.X}', self.Attr)
+            s = f'{self.Items[i + self.ShowY][self.ShowX:]} {self.ShowY},{self.ShowX} {self.Y},{self.X}'
+            if self.W < len(s): s = s[:self.W-1]
+            self.__window.addstr(i, 0, s, self.Attr)
             if self.H -1 <= i : break
     def noutrefresh(self): self.__window.noutrefresh()
     def refresh(self): self.__window.refresh()
@@ -506,7 +508,7 @@ if __name__ == "__main__":
 #        KeyInput()
 
 #        lw = ListWindow([str(i) for i in range(curses.LINES*3)], x=2, y=4)
-        lw = ListWindow([str(i) for i in range(curses.LINES*3)], x=2, y=4, w=20, h=10)
+        lw = ListWindow([f'item-item-item-{i}' for i in range(curses.LINES*3)], x=2, y=4, w=20, h=10)
         lw.Y = 10
         ListKeyInput()
 
