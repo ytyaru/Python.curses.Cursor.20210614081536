@@ -330,7 +330,7 @@ class Pad:
 
 class ListWindow:
     def __init__(self, items, x=0, y=0, w=-1, h=-1, attr=0):
-        self.__items = items
+#        self.__items = items
         self.__attr = attr
         self.__make_win(items, x=x, y=y, w=w, h=h)
         self.__subs = []
@@ -351,14 +351,16 @@ class ListWindow:
     def Attr(self): return self.__attr
     def addstrs(self):
         self.__window.erase()
+#        self.__window.bkgd(' ', curses.A_REVERSE | curses.color_pair(1))
         for i, item in enumerate(self.Items):
-            self.__window.addstr(self.Y+i, self.X, f'{self.Items[i + self.ShowY]} {self.ShowY},{self.ShowX}', self.Attr)
+            self.__window.addstr(i, 0, f'{self.Items[i + self.ShowY]} {self.ShowY},{self.ShowX} {self.Y},{self.X}', self.Attr)
+#            self.__window.addstr(self.Y+i, self.X, f'{self.Items[i + self.ShowY]} {self.ShowY},{self.ShowX} {self.Y},{self.X}', self.Attr)
             if self.H -1 <= i : break
+#            break
     def noutrefresh(self): self.__window.noutrefresh()
     def refresh(self): self.__window.refresh()
     def clear(self): self.__window.clear()
     def erase(self): self.__window.erase()
-
 
     @property
     def W(self): return self.__w
@@ -369,6 +371,7 @@ class ListWindow:
     @H.setter
     def H(self, h): self.__h = h if 0 < h and h <= curses.LINES else curses.LINES
 
+    """
     @property
     def X(self): return self.__x
     @property
@@ -383,7 +386,37 @@ class ListWindow:
         if   y < 0: self.__y = 0
         elif curses.LINES < y + self.H: self.__y = curses.LINES - self.H
         else: self.__y = y
+    """
 
+    @property
+    def X(self): return self.__window.getbegyx()[1]
+    @property
+    def Y(self): return self.__window.getbegyx()[0]
+    """
+    @property
+    def X(self):
+        self.__x = self.__window.getbegyx()[1]
+        return self.__x
+    @property
+    def Y(self):
+        self.__y = self.__window.getbegyx()[0]
+        return self.__y
+    """
+    @X.setter
+    def X(self, x):
+        if   x < 0: self.__x = 0
+        elif curses.COLS < x + self.W: self.__x = curses.COLS - self.W
+        else: self.__x = x
+#        self.__window.mvwin(self.Y, self.__x)
+        self.__panel.move(self.Y, self.__x)
+        curses.panel.update_panels();
+    @Y.setter
+    def Y(self, y):
+        if   y < 0: self.__y = 0
+        elif curses.LINES < y + self.H: self.__y = curses.LINES - self.H
+        else: self.__y = y
+        self.__panel.move(self.__y, self.X)
+        curses.panel.update_panels()
     @property
     def ShowX(self): return self.__showX
     @property
@@ -397,21 +430,24 @@ class ListWindow:
     def ShowY(self, y):
         if   y < 0: self.__showY = 0
         elif len(self.Items) -self.H - 1 < y: self.__showY = len(self.Items) - self.H
-#        elif len(self.Items) -1 < y: self.__showY = len(self.Items) - self.H
         else: self.__showY = y
-#        if   y < 0: self.__showY = 0
-#        elif self.H < x: self.__showY = self.H - 1
-#        else: self.__showY = y
     def __make_win(self, items, x=0, y=0, w=-1, h=-1):
+        self.__items = items
         self.W = w
         self.H = h
-        self.X = x
-        self.Y = y
+        if   x < 0: self.__x = 0
+        elif curses.COLS < x + self.W: self.__x = curses.COLS - self.W
+        else: self.__x = x
+        if   y < 0: self.__y = 0
+        elif curses.LINES < y + self.H: self.__y = curses.LINES - self.H
+        else: self.__y = y
         self.ShowX = 0
         self.ShowY = 0
-        self.__items = items
-        self.__window = curses.newwin(self.H, self.W, self.Y, self.X)
+        self.__window = curses.newwin(self.H, self.W, self.__y, self.__x)
         self.__panel = curses.panel.new_panel(self.__window)
+#        self.__window.mvwin(self.__y, self.__x)
+        self.__panel.move(self.__y, self.__x)
+        curses.panel.update_panels()
     def show(self): self.__panel.show(); curses.panel.update_panels();
     def hide(self): self.__panel.hide(); curses.panel.update_panels();
     def switch(self):
@@ -501,7 +537,9 @@ if __name__ == "__main__":
 #        subwin = SubWindow1(win, x=2, y=2, w=20, h=5)
 #        KeyInput()
 
-        lw = ListWindow([str(i) for i in range(curses.LINES*3)], x=2, y=4)
+#        lw = ListWindow([str(i) for i in range(curses.LINES*3)], x=2, y=4)
+        lw = ListWindow([str(i) for i in range(curses.LINES*3)], x=2, y=4, w=20, h=10)
+        lw.Y = 10
         ListKeyInput()
 
     Terminal.Name = 'xterm-256color'
