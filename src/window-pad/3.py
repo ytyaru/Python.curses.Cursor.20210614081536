@@ -197,6 +197,7 @@ class SubWindow:
     def init(self): pass
     def draw(self): pass
 
+# newpad()はいくつも問題がある。座標指定できない。Panelが使えない。よってWindowとおなじようには使えない。
 class SubPad:
     def __init__(self, parent, x=0, y=0, w=-1, h=-1):
         self.__parent = parent
@@ -259,6 +260,7 @@ class SubPad:
     def init(self): pass
     def draw(self): pass
 
+# newpad()はいくつも問題がある。座標指定できない。Panelが使えない。よってWindowとおなじようには使えない。
 class Pad:
     Pads = []
     @classmethod
@@ -325,6 +327,82 @@ class Pad:
         self.__window.refresh(self.__showY, self.__showX, self.Y, self.X, curses.LINES-1, curses.COLS-1)
     def init(self): pass
     def draw(self): pass
+
+"""
+newpad()はいくつも問題がある。座標指定できない。Panelが使えない。よってWindowとおなじようには使えない。この問題を解決すべくnewwin()したものをpadのように表示できる新しいクラスを自前で実装する。それがWinPadである。
+"""
+class WinPad:
+    def __init__(self, x=0, y=0, w=-1, h=-1):
+        self.__vx = x if 0 <= x else 0
+        self.__vy = y if 0 <= y else 0
+        self.__vw = w if 0 < w else curses.COLS
+        self.__vh = h if 0 < h else curses.LINES
+        self.__showX = 0
+        self.__showY = 0
+        self.__pad = curses.newpad(self.__vh, self.__vw, y, x)
+        self.__window = curses.newwin(min(self.__vh,curses.LINES), min(self.__vw,curses.COLS), y, x)
+    @property
+    def Window(self): return self.__window
+    @property
+    def ShowX(self): return self.__showX
+    @property
+    def ShowY(self): return self.__showY
+    @ShowX.setter
+    def ShowX(self, v): self.__showX = v
+    @ShowY.setter
+    def ShowY(self, v): self.__showY = v
+    def addstr(self, y, x, s, attr=0):
+        self.__pad.addstr(y, x, s, attr)
+        # どう実装すればいい？　padとwindowの両方をもたせる？　padの仮想領域に描画して、それをShowX,ShowYを始点にして端末サイズで切り取り、その範囲のデータをputwin()で取得する。さらにそのデータを元にgetwin()してWindowオブジェクトを得る。
+        # https://stackoverflow.com/questions/43580876/how-to-write-the-curses-window-content-to-the-file-in-python
+        # https://stackoverflow.com/questions/30811680/python-testing-ncurses
+        self.__pad.putwin()
+        self.__window.addstr(y+self.ShowY, x+self.ShowX, s, attr)
+    def noutrefresh(self): self.__window.noutrefresh()
+    def refresh(self): self.__window.refresh()
+    def clear(self): self.__window.clear()
+    def erase(self): self.__window.erase()
+
+# WinPadのSubにあたる
+class WinSubPad:
+    def __init__(self, parent, x=0, y=0, w=-1, h=-1):
+        self.__vx = x
+        self.__vy = y
+        self.__vw = w if 0 < w and w <= curses.COLS else curses.COLS
+        self.__vh = h if 0 < w and h <= curses.LINES else curses.LINES
+        self.__showX = 0
+        self.__showY = 0
+        self.__parent = parent
+        self.__window = parent.Window.subwin(min(self.__vh,curses.LINES), min(self.__vw,curses.COLS), y, x)
+    @property
+    def Window(self): return self.__window
+    @property
+    def ShowX(self): return self.__showX
+    @property
+    def ShowY(self): return self.__showY
+    @ShowX.setter
+    def ShowX(self, v): self.__showX = v
+    @ShowY.setter
+    def ShowY(self, v): self.__showY = v
+    def addstr(self, y, x, s, attr=0):
+        self.__window.addstr(y+self.ShowY, x+self.ShowX, s, attr)
+    def noutrefresh(self): self.__window.noutrefresh()
+    def refresh(self): self.__window.refresh()
+    def clear(self): self.__window.clear()
+    def erase(self): self.__window.erase()
+
+"""
+class WinPadLine:
+    Lines = []
+    @classmethod
+    def add(cls, y=0, x=0, s=None, a=0):
+        
+    def __init__(self, y=0, x=0, s=None, a=0):
+        self.__x = x
+        self.__y = y
+        self.__s = s
+        self.__a = a
+"""
 
 class Cursor:
     @classmethod
